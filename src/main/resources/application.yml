@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:test;MODE=MySQL;NON_KEYWORDS=USER
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        auto_quote_keyword: true
+        show_sql: true
+        format_sql: true
+        highlight_sql: true
+
+    defer-datasource-initialization: true
+
+  h2:
+    console:
+      enabled: true
+
+logging:
+  level:
+    root: debug
