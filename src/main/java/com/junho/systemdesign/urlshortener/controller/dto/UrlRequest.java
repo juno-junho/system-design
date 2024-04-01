@@ -4,5 +4,4 @@ import com.junho.systemdesign.urlshortener.validation.ValidUrl;
 
 public record UrlRequest(@ValidUrl String longUrl) {
 
-
 }

@@ -23,7 +23,6 @@ import java.util.List;
 public class ShortenUrlController {
 
     private static final List<String> PROTOCOLS = List.of("http://", "https://"); // TODO application.yml로 분리 예정
-
     private final ShortenUrlService shortenUrlService;
 
     @PostMapping("/api/v1/data/shorten")

@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 
 @Documented
 @Constraint(validatedBy = UrlValidator.class)
-@Target(ElementType.PARAMETER)
+@Target({ElementType.PARAMETER, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidUrl {
 
