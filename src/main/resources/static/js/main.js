@@ -15,7 +15,7 @@ document.getElementById("shortenBtn").addEventListener("click", function() {
             console.log("data: ", data); // todo 제거 예정
             const displayArea = document.getElementById("shortenedUrl");
             if (data.shortenUrl) {
-                displayArea.innerHTML = `<p class="text-success">Shortened URL: <a href="juno.com/${data.shortenUrl}" target="_blank">juno.com/${data.shortenUrl}</a></p>`; // todo url 변경 예정
+                displayArea.innerHTML = `<p class="text-success">Shortened URL: <a href="http://localhost:8080/${data.shortenUrl}" target="_blank">http://localhost:8080/${data.shortenUrl}</a></p>`; // todo url 변경 예정
             } else {
                 displayArea.innerHTML = "<p class='text-danger'> 유효하지 않은 URL입니다.</p>";
             }

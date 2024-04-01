@@ -15,10 +15,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 public class ShortenUrlController {
+
+    private static final List<String> PROTOCOLS = List.of("http://", "https://"); // TODO application.yml로 분리 예정
 
     private final ShortenUrlService shortenUrlService;
 
@@ -38,9 +42,14 @@ public class ShortenUrlController {
     }
 
     @GetMapping("/{shortenUrl}")
-    public ResponseEntity<String> getShortenUrl(@PathVariable String shortenUrl) {
+    public ResponseEntity<String> getShortenUrl(@PathVariable(name = "shortenUrl") String shortenUrl) {
         if (shortenUrlService.isShortenUrlExist(shortenUrl)) { // DB 에 있으면 redirect
             String longUrl = shortenUrlService.getLongUrl(shortenUrl);
+
+            boolean doesNotContainProtocols = PROTOCOLS.stream().noneMatch(longUrl::startsWith);
+            if (doesNotContainProtocols) {
+                longUrl = PROTOCOLS.get(0) + longUrl;// 기본적으로 http://를 앞에 추가
+            }
             return ResponseEntity.status(HttpStatus.FOUND) // 트래픽 분석을 위해 301대신 302 반환
                     .header(HttpHeaders.LOCATION, longUrl)
                     .build();
