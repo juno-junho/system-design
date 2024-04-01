@@ -49,7 +49,7 @@ public class ShortenUrlService {
         return shortenUrl;
     }
 
-    // 해시 후 충돌 해소 전략
+    // 해시 후 충돌 해소 전략 TODO 궁금한점 : bloom filter 사용하면 메모리에서 관리하기에 server가 꺼지면 안된다.현재 요구사항 만족 힘들것이라 추정
     @Transactional
     public String shortenUrlUsingHash(final String longUrl) throws NoSuchAlgorithmException {
         String shortenUrl = hashGenerator.generateHash(longUrl, DEFAULT_HASH_LENGTH);

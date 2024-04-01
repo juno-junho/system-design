@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @Slf4j
@@ -26,7 +27,7 @@ public class ShortenUrlController {
     private final ShortenUrlService shortenUrlService;
 
     @PostMapping("/api/v1/data/shorten")
-    public UrlResponse shortenUrl(@Valid @RequestBody UrlRequest urlRequest) { // todo valid 확인
+    public UrlResponse shortenUrl(@Valid @RequestBody UrlRequest urlRequest) throws NoSuchAlgorithmException {
         log.debug("url inserted : {}", urlRequest.longUrl());
         String longUrl = urlRequest.longUrl();// 1. Long URL DB에 존재 ? 반환 : shorten URL 생성 -> DB에 저장 -> 반환
 
@@ -34,7 +35,7 @@ public class ShortenUrlController {
             String shortenUrl = shortenUrlService.getShortenUrl(longUrl);
             return new UrlResponse(longUrl, shortenUrl);
         }
-        String shortenUrl = shortenUrlService.shortenUrlByBase62(urlRequest.longUrl());
+        String shortenUrl = shortenUrlService.shortenUrlUsingHash(urlRequest.longUrl());
 
         log.debug("shorten url : {}", shortenUrl);
         return new UrlResponse(longUrl, shortenUrl);
@@ -53,9 +54,7 @@ public class ShortenUrlController {
                     .header(HttpHeaders.LOCATION, longUrl)
                     .build();
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND) // DB에 존재하지 않으면 error page로 redirect
-                .header(HttpHeaders.LOCATION, "/error")
-                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // DB에 존재하지 않으면 error
     }
 
 }
