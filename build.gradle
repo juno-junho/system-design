@@ -32,6 +32,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     runtimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // bloom filter 추가
+    implementation("com.google.guava:guava:33.1.0-jre")
 }
 
 tasks.named('test') {
