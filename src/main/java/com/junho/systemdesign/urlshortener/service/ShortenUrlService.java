@@ -19,8 +19,17 @@ public class ShortenUrlService {
 
     private final ShortenUrlRepository shortenUrlRepository;
 
-    public boolean isExist(String longUrl) {
+    public boolean isLongUrlExist(String longUrl) {
         return shortenUrlRepository.existsByLongUrl(longUrl);
+    }
+
+    public boolean isShortenUrlExist(String shortenUrl) {
+        return shortenUrlRepository.existsByShortenUrl(shortenUrl);
+    }
+
+    public String getLongUrl(String shortenUrl) {
+        UrlPair byShortenUrl = shortenUrlRepository.findByShortenUrl(shortenUrl);
+        return byShortenUrl.getLongUrl();
     }
 
     public String getShortenUrl(String longUrl) {
@@ -29,7 +38,7 @@ public class ShortenUrlService {
     }
 
     @Transactional
-    public String shortenUrlByBase64(String longUrl) {
+    public String shortenUrlByBase62(String longUrl) {
         // TODO : 임시 id autoincrement를 유일성 보장 ID 생성기로 사용 -> snowflake로 변경 예정
         UrlPair pair = new UrlPair(longUrl, null);
         Long id = shortenUrlRepository.save(pair).getId();
