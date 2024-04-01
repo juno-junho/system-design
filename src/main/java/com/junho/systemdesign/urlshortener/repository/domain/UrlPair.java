@@ -1,22 +1,24 @@
 package com.junho.systemdesign.urlshortener.repository.domain;
 
 import com.junho.systemdesign.global.entity.BaseTimeEntity;
+import com.junho.systemdesign.urlshortener.service.SnowFlakeGenerator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Getter;
+import org.hibernate.annotations.GenericGenerator;
 
 @Getter
 @Entity
 public class UrlPair extends BaseTimeEntity {
 
-    protected UrlPair() {}
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "global_seq_id")
+    @GenericGenerator(name = "global_seq_id", type = SnowFlakeGenerator.class)
     private Long id;
+
+    protected UrlPair() {}
 
     private String longUrl;
 

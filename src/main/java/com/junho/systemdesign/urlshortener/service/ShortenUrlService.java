@@ -40,9 +40,8 @@ public class ShortenUrlService {
 
     @Transactional
     public String shortenUrlByBase62(String longUrl) {
-        // TODO : 임시 id autoincrement를 유일성 보장 ID 생성기로 사용 -> snowflake로 변경 예정
         UrlPair pair = new UrlPair(longUrl, null);
-        Long id = shortenUrlRepository.save(pair).getId();
+        Long id = shortenUrlRepository.save(pair).getId(); // snowflake로 생성된 id
 
         String shortenUrl = Base62Converter.encode(id);
         pair.completeUrl(shortenUrl); // dirty checking으로 DB 저장

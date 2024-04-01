@@ -35,7 +35,7 @@ public class ShortenUrlController {
             String shortenUrl = shortenUrlService.getShortenUrl(longUrl);
             return new UrlResponse(longUrl, shortenUrl);
         }
-        String shortenUrl = shortenUrlService.shortenUrlUsingHash(urlRequest.longUrl());
+        String shortenUrl = shortenUrlService.shortenUrlByBase62(urlRequest.longUrl());
 
         log.debug("shorten url : {}", shortenUrl);
         return new UrlResponse(longUrl, shortenUrl);

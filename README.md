@@ -37,3 +37,6 @@
 2. random number 생성 -> 중복이 발생할 수 있다. hash를 사용하는 방식의 문제점을 해결하지 못한다.
 3. snowflake 생성기법 사용 -> 추후 scale out시 분산 환경에서 사용하기에 적합하다. 또한 timestamp 기반으로 정렬도 가능하다
 => snowflake 생성기법을 사용하여 id값을 생성하고 base 62로 인코딩하여 shorten URL을 생성하자!
+
+
+snowflake id 생성 기법 적용 코드 출처 : https://ramka-devstory.tistory.com/2
