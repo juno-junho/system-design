@@ -2,7 +2,7 @@ package com.junho.systemdesign.urlshortener.service;
 
 import com.junho.systemdesign.urlshortener.repository.ShortenUrlRepository;
 import com.junho.systemdesign.urlshortener.repository.domain.UrlPair;
-import com.junho.systemdesign.urlshortener.service.cache.Cache;
+import com.junho.systemdesign.urlshortener.service.bloomfilter.MemoryBloomFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +29,19 @@ class ShortenUrlServiceTest {
     @Autowired
     private ShortenUrlRepository shortenUrlRepository;
     @Autowired
-    private Cache bloomFilter;
+    private MemoryBloomFilter bloomFilter;
+
+
+    @Test
+    void default_해시값과_캐릭터값_주입에_성공한다() {
+        // when
+        String defaultChar = shortenUrlService.getDefaultChar();
+        int defaultHashLength = shortenUrlService.getDefaultHashLength();
+
+        // then
+        assertThat(defaultChar).isEqualTo("*");
+        assertThat(defaultHashLength).isEqualTo(7);
+    }
 
     @Test
     void 해시_충돌이_일어나지_않을경우_정상적으로_shortenUrl을_생성한다() throws NoSuchAlgorithmException {
