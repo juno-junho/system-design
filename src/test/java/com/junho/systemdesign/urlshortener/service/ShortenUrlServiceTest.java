@@ -51,7 +51,7 @@ class ShortenUrlServiceTest {
         given(hashGenerator.generateHash(anyString(), anyInt())).willReturn(shortenUrl);
 
         // when
-        String result = shortenUrlService.shortenUrlUsingHash(longUrl);
+        String result = shortenUrlService.generateShortenUrlUsingHash(longUrl);
 
         // then
         assertThat(result).isEqualTo(shortenUrl);
@@ -74,7 +74,7 @@ class ShortenUrlServiceTest {
         given(hashGenerator.generateHash(eq(longUrl.concat("**")), anyInt())).willReturn(thirdShortenUrl);
 
         // when
-        String result = shortenUrlService.shortenUrlUsingHash(longUrl);
+        String result = shortenUrlService.generateShortenUrlUsingHash(longUrl);
 
         // then
         assertThat(result).isEqualTo(thirdShortenUrl);
@@ -96,7 +96,7 @@ class ShortenUrlServiceTest {
         given(hashGenerator.generateHash(eq(longUrl.concat("**")), anyInt())).willReturn(thirdShortenUrl);
 
         // when
-        String result = shortenUrlService.shortenUrlUsingHashWithBloomFilter(longUrl);
+        String result = shortenUrlService.generateShortenUrlUsingHashWithBloomFilter(longUrl);
 
         // then
         assertThat(result).isEqualTo(thirdShortenUrl);

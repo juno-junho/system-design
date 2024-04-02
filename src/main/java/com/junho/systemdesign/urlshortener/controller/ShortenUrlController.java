@@ -36,7 +36,7 @@ public class ShortenUrlController {
             String shortenUrl = shortenUrlService.getShortenUrl(longUrl);
             return new UrlResponse(longUrl, shortenUrl);
         }
-        String shortenUrl = shortenUrlService.shortenUrlUsingHashWithBloomFilter(urlRequest.longUrl());
+        String shortenUrl = shortenUrlService.generateShortenUrlUsingHashWithBloomFilter(urlRequest.longUrl());
 
         log.debug("shorten url : {}", shortenUrl);
         return new UrlResponse(longUrl, shortenUrl);
@@ -50,7 +50,7 @@ public class ShortenUrlController {
             List<String> allowedProtocols = shortenUrlProperties.allowedProtocols();
             boolean doesNotContainProtocols = allowedProtocols.stream().noneMatch(longUrl::startsWith);
             if (doesNotContainProtocols) {
-                longUrl = shortenUrlProperties.getDefaultProtocol() + longUrl;// 기본적으로 http://를 앞에 추가
+                longUrl = shortenUrlProperties.getDefaultProtocol().concat(longUrl);// 기본적으로 http://를 앞에 추가
             }
             return ResponseEntity.status(HttpStatus.FOUND) // 트래픽 분석을 위해 301대신 302 반환
                     .header(HttpHeaders.LOCATION, longUrl)

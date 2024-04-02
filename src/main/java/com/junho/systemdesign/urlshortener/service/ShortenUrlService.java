@@ -48,7 +48,7 @@ public class ShortenUrlService {
     }
 
     @Transactional
-    public String shortenUrlByBase62(String longUrl) {
+    public String generateShortenUrlUsingBase62(String longUrl) {
         UrlPair pair = new UrlPair(longUrl, null);
         Long id = shortenUrlRepository.save(pair).getId(); // snowflake로 생성된 id
 
@@ -59,7 +59,7 @@ public class ShortenUrlService {
 
     // 해시 후 충돌 해소 전략 : 해시값에 충돌 해소될 때 까지 사전에 저한 문자열 해시값에 덧붙임.
     @Transactional
-    public String shortenUrlUsingHash(final String longUrl) throws NoSuchAlgorithmException {
+    public String generateShortenUrlUsingHash(final String longUrl) throws NoSuchAlgorithmException {
         String shortenUrl = hashGenerator.generateHash(longUrl, defaultHashLength);
         String appendCharForHashCollision = longUrl;
         // DB에 있는지 확인 ? 충돌 발생 : DB 저장
@@ -73,7 +73,7 @@ public class ShortenUrlService {
 
     // bloom filter 사용하면 DB 조회 오버헤드 줄여 성능 개선 가능. but 메모리에서 관리하기에 server가 꺼지면 안된다.현재 요구사항 만족 힘들것이라 추정
     @Transactional
-    public String shortenUrlUsingHashWithBloomFilter(final String longUrl) throws NoSuchAlgorithmException {
+    public String generateShortenUrlUsingHashWithBloomFilter(final String longUrl) throws NoSuchAlgorithmException {
         String shortenUrl = hashGenerator.generateHash(longUrl, defaultHashLength);
         String appendCharForHashCollision = longUrl;
         // bloom filter에 있는지 확인 ? 충돌 발생 -> 충돌 해소 : DB 저장
