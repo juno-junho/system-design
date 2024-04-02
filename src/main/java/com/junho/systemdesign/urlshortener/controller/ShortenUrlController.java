@@ -59,4 +59,9 @@ public class ShortenUrlController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // DB에 존재하지 않으면 error
     }
 
+//    @GetMapping("/api/v1/data/shorten")
+//    public List<UrlResponse> getAllShortenUrl() {
+//        return shortenUrlService.getAllShortenUrl();
+//    }
+
 }

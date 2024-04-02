@@ -25,6 +25,9 @@ public class UrlPair extends BaseTimeEntity {
     @Column(unique = true)
     private String shortenUrl;
 
+    // TODO 조회될때 마다 하나씩 올려서 -> 자주 쓰는것 캐시 넣기 // count 수가 x 이상인것은 캐싱, 기간 설정
+    private int viewCount;
+
     public UrlPair(String longUrl, String shortenUrl) {
         this.longUrl = longUrl;
         this.shortenUrl = shortenUrl;
@@ -32,6 +35,10 @@ public class UrlPair extends BaseTimeEntity {
 
     public void completeUrl(String shortenUrl) {
         this.shortenUrl = shortenUrl;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 
 }

@@ -39,6 +39,7 @@ public class ShortenUrlService {
 
     public String getLongUrl(String shortenUrl) {
         UrlPair byShortenUrl = shortenUrlRepository.findByShortenUrl(shortenUrl);
+        byShortenUrl.increaseViewCount(); // view 수 증가
         return byShortenUrl.getLongUrl();
     }
 
