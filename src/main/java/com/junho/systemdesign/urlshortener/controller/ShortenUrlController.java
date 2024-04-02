@@ -1,5 +1,6 @@
 package com.junho.systemdesign.urlshortener.controller;
 
+import com.junho.systemdesign.global.config.ShortenUrlProperties;
 import com.junho.systemdesign.urlshortener.controller.dto.UrlRequest;
 import com.junho.systemdesign.urlshortener.controller.dto.UrlResponse;
 import com.junho.systemdesign.urlshortener.service.ShortenUrlService;
@@ -23,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ShortenUrlController {
 
-    private static final List<String> PROTOCOLS = List.of("http://", "https://"); // TODO application.yml로 분리 예정
+    private final ShortenUrlProperties shortenUrlProperties;
     private final ShortenUrlService shortenUrlService;
 
     @PostMapping("/api/v1/data/shorten")
@@ -35,7 +36,7 @@ public class ShortenUrlController {
             String shortenUrl = shortenUrlService.getShortenUrl(longUrl);
             return new UrlResponse(longUrl, shortenUrl);
         }
-        String shortenUrl = shortenUrlService.shortenUrlByBase62(urlRequest.longUrl());
+        String shortenUrl = shortenUrlService.shortenUrlUsingHashWithBloomFilter(urlRequest.longUrl());
 
         log.debug("shorten url : {}", shortenUrl);
         return new UrlResponse(longUrl, shortenUrl);
@@ -46,9 +47,10 @@ public class ShortenUrlController {
         if (shortenUrlService.isShortenUrlExist(shortenUrl)) { // DB 에 있으면 redirect
             String longUrl = shortenUrlService.getLongUrl(shortenUrl);
 
-            boolean doesNotContainProtocols = PROTOCOLS.stream().noneMatch(longUrl::startsWith);
+            List<String> allowedProtocols = shortenUrlProperties.allowedProtocols();
+            boolean doesNotContainProtocols = allowedProtocols.stream().noneMatch(longUrl::startsWith);
             if (doesNotContainProtocols) {
-                longUrl = PROTOCOLS.get(0) + longUrl;// 기본적으로 http://를 앞에 추가
+                longUrl = shortenUrlProperties.getDefaultProtocol() + longUrl;// 기본적으로 http://를 앞에 추가
             }
             return ResponseEntity.status(HttpStatus.FOUND) // 트래픽 분석을 위해 301대신 302 반환
                     .header(HttpHeaders.LOCATION, longUrl)

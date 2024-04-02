@@ -24,3 +24,11 @@ spring:
 logging:
   level:
     root: debug
+
+
+shorten-url:
+  default-char: "*"
+  default-hash-length: 7
+  allowed-protocols:
+    - http://
+    - https://
