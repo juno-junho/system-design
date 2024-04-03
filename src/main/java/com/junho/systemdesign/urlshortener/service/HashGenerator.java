@@ -10,11 +10,15 @@ public class HashGenerator {
 
     private static final String HASH_ALGORITHM = "SHA-256";
 
-    public String generateHash(String longUrl, int hashLength) throws NoSuchAlgorithmException {
-        MessageDigest instance = MessageDigest.getInstance(HASH_ALGORITHM);
-        byte[] digest = instance.digest(longUrl.getBytes());
-        validateHashLength(hashLength, digest.length);
-        return toHexString(digest).substring(0, hashLength); // 7자리로 자르기
+    public String generateHash(String longUrl, int hashLength) {
+        try {
+            MessageDigest instance = MessageDigest.getInstance(HASH_ALGORITHM);
+            byte[] digest = instance.digest(longUrl.getBytes());
+            validateHashLength(hashLength, digest.length);
+            return toHexString(digest).substring(0, hashLength); // 7자리로 자르기
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("해시 알고리즘이 존재하지 않습니다.");
+        }
     }
 
     private void validateHashLength(int hashLength, int digestLength) {

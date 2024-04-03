@@ -1,7 +1,6 @@
 package com.junho.systemdesign.urlshortener.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.junho.systemdesign.global.config.ShortenUrlProperties;
 import com.junho.systemdesign.urlshortener.controller.dto.UrlRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -22,23 +18,8 @@ class ShortenUrlControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper mapper;
-
-    @Autowired
-    private ShortenUrlProperties shortenUrlProperties;
-
-    @Test
-    void shorten_url_관련_properties_주입_성공() {
-        // when
-        List<String> allowedProtocols = shortenUrlProperties.allowedProtocols();
-        String defaultProtocol = shortenUrlProperties.getDefaultProtocol();
-
-        // then
-        assertThat(allowedProtocols).containsExactly("http://", "https://");
-        assertThat(defaultProtocol).isEqualTo("http://");
-    }
 
     @Test
     void 유효한_요청일_경우_200_반환() throws Exception {

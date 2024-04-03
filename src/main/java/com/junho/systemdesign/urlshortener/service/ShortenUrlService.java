@@ -1,91 +1,73 @@
 package com.junho.systemdesign.urlshortener.service;
 
+import com.junho.systemdesign.global.config.ShortenUrlProperties;
 import com.junho.systemdesign.urlshortener.repository.ShortenUrlRepository;
 import com.junho.systemdesign.urlshortener.repository.domain.UrlPair;
-import com.junho.systemdesign.urlshortener.service.bloomfilter.MemoryBloomFilter;
-import com.junho.systemdesign.urlshortener.service.util.Base62Converter;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.NoSuchAlgorithmException;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ShortenUrlService {
 
-    @Getter
-    @Value("${shorten-url.default-char}")
-    private String defaultChar;
-
-    @Getter
-    @Value("${shorten-url.default-hash-length}")
-    private int defaultHashLength;
-
     private final ShortenUrlRepository shortenUrlRepository;
-    private final HashGenerator hashGenerator;
-    private final MemoryBloomFilter bloomFilter;
-
-    public boolean isLongUrlExist(String longUrl) {
-        return shortenUrlRepository.existsByLongUrl(longUrl);
-    }
+    private final ShortenUrlProperties shortenUrlProperties;
+    private final ShortenUrlGenerator shortenUrlGenerator;
 
     public boolean isShortenUrlExist(String shortenUrl) {
         return shortenUrlRepository.existsByShortenUrl(shortenUrl);
     }
 
-    public String getLongUrl(String shortenUrl) {
-        UrlPair byShortenUrl = shortenUrlRepository.findByShortenUrl(shortenUrl);
-        byShortenUrl.increaseViewCount(); // view 수 증가
-        return byShortenUrl.getLongUrl();
-    }
-
-    public String getShortenUrl(String longUrl) {
-        UrlPair byLongUrl = shortenUrlRepository.findByLongUrl(longUrl);
-        return byLongUrl.getShortenUrl();
+    public boolean isLongUrlExist(String longUrl) {
+        return shortenUrlRepository.existsByLongUrl(longUrl);
     }
 
     @Transactional
-    public String generateShortenUrlUsingBase62(String longUrl) {
-        UrlPair pair = new UrlPair(longUrl, null);
-        Long id = shortenUrlRepository.save(pair).getId(); // snowflake로 생성된 id
+    public String getLongUrl(String shortenUrl) {
+        UrlPair url = shortenUrlRepository.findByShortenUrl(shortenUrl)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 URL"));
+        url.increaseViewCount(); // view 수 증가
+        return url.getLongUrl(); // dirty checking
+    }
 
-        String shortenUrl = Base62Converter.encode(id);
+    public String getShortenUrl(String longUrl) {
+        UrlPair url = shortenUrlRepository.findByLongUrl(longUrl)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 URL"));
+        return url.getShortenUrl();
+    }
+
+    // Base62 encoding
+    @Transactional
+    public String generateShortenUrlUsingBase62(String longUrl) {
+        UrlPair pair = new UrlPair(longUrl, null, shortenUrlProperties);
+        Long id = shortenUrlRepository.save(pair).getId(); // snowflake로 생성된 id
+        String shortenUrl = shortenUrlGenerator.getBase62String(id);
         pair.completeUrl(shortenUrl); // dirty checking으로 DB 저장
         return shortenUrl;
     }
 
     // 해시 후 충돌 해소 전략 : 해시값에 충돌 해소될 때 까지 사전에 저한 문자열 해시값에 덧붙임.
     @Transactional
-    public String generateShortenUrlUsingHash(final String longUrl) throws NoSuchAlgorithmException {
-        String shortenUrl = hashGenerator.generateHash(longUrl, defaultHashLength);
-        String appendCharForHashCollision = longUrl;
-        // DB에 있는지 확인 ? 충돌 발생 : DB 저장
-        while (shortenUrlRepository.existsByShortenUrl(shortenUrl)) {
-            appendCharForHashCollision = appendCharForHashCollision.concat(defaultChar);
-            shortenUrl = hashGenerator.generateHash(appendCharForHashCollision, defaultHashLength);
+    public String generateShortenUrlUsingHash(final String longUrl) {
+        String shortenUrl = shortenUrlGenerator.generateHash(longUrl);
+        int collisionCount = 0;
+        while (shortenUrlRepository.existsByShortenUrl(shortenUrl)) {// DB에 있는지 확인 ? 충돌 발생 : DB 저장
+            shortenUrl = shortenUrlGenerator.generateNewHash(longUrl, ++collisionCount);
         }
-        shortenUrlRepository.save(new UrlPair(longUrl, shortenUrl)); // DB 저장
+        shortenUrlRepository.save(new UrlPair(longUrl, shortenUrl, shortenUrlProperties)); // DB 저장
         return shortenUrl;
     }
 
     // bloom filter 사용하면 DB 조회 오버헤드 줄여 성능 개선 가능. but 메모리에서 관리하기에 server가 꺼지면 안된다.현재 요구사항 만족 힘들것이라 추정
     @Transactional
-    public String generateShortenUrlUsingHashWithBloomFilter(final String longUrl) throws NoSuchAlgorithmException {
-        String shortenUrl = hashGenerator.generateHash(longUrl, defaultHashLength);
-        String appendCharForHashCollision = longUrl;
-        // bloom filter에 있는지 확인 ? 충돌 발생 -> 충돌 해소 : DB 저장
-        while (bloomFilter.mightContain(shortenUrl)) {
-            // 충돌 가능성 있음
-            appendCharForHashCollision = appendCharForHashCollision.concat(defaultChar);
-            shortenUrl = hashGenerator.generateHash(appendCharForHashCollision, defaultHashLength);
-        }
-        // 충돌 가능성 전혀 없음
-        shortenUrlRepository.save(new UrlPair(longUrl, shortenUrl)); // DB 저장
-        bloomFilter.put(shortenUrl); // bloom filter 저장
+    public String generateShortenUrlUsingHashWithBloomFilter(final String longUrl) {
+        String shortenUrl = shortenUrlGenerator.generateUniqueShortenUrl(longUrl);
+        shortenUrlRepository.save(new UrlPair(longUrl, shortenUrl, shortenUrlProperties)); // DB 저장
         return shortenUrl;
     }
 

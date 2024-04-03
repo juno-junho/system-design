@@ -1,5 +1,6 @@
 package com.junho.systemdesign.urlshortener.repository.domain;
 
+import com.junho.systemdesign.global.config.ShortenUrlProperties;
 import com.junho.systemdesign.global.entity.BaseTimeEntity;
 import com.junho.systemdesign.urlshortener.service.SnowFlakeGenerator;
 import jakarta.persistence.Column;
@@ -28,8 +29,8 @@ public class UrlPair extends BaseTimeEntity {
     // TODO 조회될때 마다 하나씩 올려서 -> 자주 쓰는것 캐시 넣기 // count 수가 x 이상인것은 캐싱, 기간 설정
     private int viewCount;
 
-    public UrlPair(String longUrl, String shortenUrl) {
-        this.longUrl = longUrl;
+    public UrlPair(String longUrl, String shortenUrl, ShortenUrlProperties properties) {
+        this.longUrl = ensureUrlHasProtocol(longUrl, properties);
         this.shortenUrl = shortenUrl;
     }
 
@@ -39,6 +40,14 @@ public class UrlPair extends BaseTimeEntity {
 
     public void increaseViewCount() {
         this.viewCount++;
+    }
+
+    private String ensureUrlHasProtocol(final String longUrl, final ShortenUrlProperties properties) {
+        return properties.allowedProtocols().stream()
+                .filter(longUrl::startsWith)
+                .findFirst()
+                .map(protocol -> longUrl) // 프로토콜로 시작한다면 원래 URL을 반환
+                .orElseGet(() -> properties.getDefaultProtocol().concat(longUrl)); // 시작하지 않는다면 기본 프로토콜을 추가
     }
 
 }
