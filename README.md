@@ -32,7 +32,7 @@
 - long url 입력 -> shorten url로 변환
 - shorten url get 요청 -> 유효한 url ? 원본 url로 redirect : error message
 
-### 문제점
+### 문제점 
 - 현시점 Base-62 변환하는 과정에 있어서 auto-increment 되는 Id값을 사용.
 - 3650억개의 레코드를 커버링하지만, 문제점은 1씩 증가하기에 다음 쓸 수 있는 단축 URL이 무엇인지 쉽게 알아 낼 수 있어 보안상의 문제 발생
 
@@ -41,8 +41,16 @@
 1. id값을 uuid로 생성 -> base 62로 인코딩하기 힘들다. 숫자로만 구성되었으면 좋겠다. & 너무 길다
 2. random number 생성 -> 중복이 발생할 수 있다. hash를 사용하는 방식의 문제점을 해결하지 못한다.
 3. snowflake 생성기법 사용 -> 추후 scale out시 분산 환경에서 사용하기에 적합하다. 또한 timestamp 기반으로 정렬도 가능하다
-=> snowflake 생성기법을 사용하여 id값을 생성하고 base 62로 인코딩하여 shorten URL을 생성하자!
-
-
+</br> => snowflake 생성기법을 사용하여 id값을 생성하고 base 62로 인코딩하여 shorten URL을 생성하자!
 snowflake id 생성 기법 적용 코드 출처 : https://ramka-devstory.tistory.com/2
 
+### 캐시에 대한 고민
+- 어떤 캐시를 사용해 url을 캐싱할 것인가?
+  - 선택지 
+  1. Redis와 같은 별도의 캐시서버를 두는것 -> 서버가 추가로 필요하기 때문에 비용 발생 but 서버가 꺼지더라도 데이터 보존 장점
+  2. local 캐시 : ehcache, caffeine cache -> 서버가 꺼지면 데이터 손실 but 서버 추가로 필요하지 않음
+  - 일단 in memory 캐시를 사용하여 구현하고, 추후 scale out시 redis와 같은 별도의 캐시 서버를 사용하도록 변경할 예정
+- 그럼 어떤 local 캐시를 사용할 것인가?
+  - 선택지
+  1. ehcache, caffeine cache -> 일단 ehcache 사용하여 구현하자(가장 많이 사용하기 때문)
+  - ehcache 정책은 캐시는 하루 동안 유지, 5분 동안 호출되지 않으면 삭제
