@@ -1,0 +1,17 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://www.ehcache.org/ehcache.xsd"
+         maxBytesLocalHeap="300M"
+         updateCheck="false"><!-- CacheManager 통해 관리되 캐시 메모리 300 MB로 제한 -->
+
+    <diskStore path="java.io.tmpdir/ehcache"/>
+
+    <cache name="urlCache"
+           maxEntriesLocalHeap="1000"
+           eternal="false"
+           timeToIdleSeconds="300"
+           timeToLiveSeconds="86400"
+           memoryStoreEvictionPolicy="LRU">
+        <persistence strategy="none"/>
+    </cache>
+
+</ehcache>

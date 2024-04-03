@@ -35,6 +35,11 @@ dependencies {
 
     // bloom filter 추가
     implementation("com.google.guava:guava:33.1.0-jre")
+
+    // cache
+    implementation 'org.ehcache:ehcache:3.9.0' // ehcache
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
 }
 
 tasks.named('test') {

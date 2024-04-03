@@ -21,6 +21,12 @@ spring:
     console:
       enabled: true
 
+## ehcache 캐시 설정
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+
+
 logging:
   level:
     root: debug
