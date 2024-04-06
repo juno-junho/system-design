@@ -5,7 +5,6 @@ import com.junho.systemdesign.urlshortener.repository.ShortenUrlRepository;
 import com.junho.systemdesign.urlshortener.repository.domain.UrlPair;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,8 @@ public class ShortenUrlService {
     }
 
     public boolean isLongUrlExist(String longUrl) {
-        return shortenUrlRepository.existsByLongUrl(longUrl);
+        String verifiedLongUrl = UrlPair.verified(longUrl, shortenUrlProperties);
+        return shortenUrlRepository.existsByLongUrl(verifiedLongUrl);
     }
 
     @Transactional
@@ -72,4 +72,3 @@ public class ShortenUrlService {
     }
 
 }
-

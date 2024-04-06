@@ -34,6 +34,11 @@ public class UrlPair extends BaseTimeEntity {
         this.shortenUrl = shortenUrl;
     }
 
+    public static String verified(String longUrl, ShortenUrlProperties shortenUrlProperties) {
+        UrlPair urlPair = new UrlPair(longUrl, null, shortenUrlProperties);
+        return urlPair.longUrl;
+    }
+
     public void completeUrl(String shortenUrl) {
         this.shortenUrl = shortenUrl;
     }

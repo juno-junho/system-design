@@ -29,6 +29,36 @@ class ShortenUrlServiceTest {
     @Autowired
     private ShortenUrlProperties shortenUrlProperties;
 
+    @Test
+    void http프로토콜이_붙은_동일한_Longurl이_DB에_존재하면_true를_반환한다() {
+        // given
+        String protocolIncludedLongUrl = "http://www.example.com";
+        String protocolExcludedLongUrl = "www.example.com";
+        UrlPair urlPair = new UrlPair(protocolIncludedLongUrl, "1234567", shortenUrlProperties);
+        shortenUrlRepository.saveAndFlush(urlPair);
+
+        // when
+        boolean result = shortenUrlService.isLongUrlExist(protocolExcludedLongUrl);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void http프로토콜이_아닌_다른프로토콜일_경우_같은_url이라도_false를_반환한다() {
+        // given
+        String httpProtocolIncludedLongUrl = "http://www.example.com";
+        String httpsProtocolIncludedLongUrl = "https://www.example.com";
+        UrlPair urlPair = new UrlPair(httpProtocolIncludedLongUrl, "1234567", shortenUrlProperties);
+        shortenUrlRepository.saveAndFlush(urlPair);
+
+        // when
+        boolean result = shortenUrlService.isLongUrlExist(httpsProtocolIncludedLongUrl);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
 
     @Test
     void 해시_충돌이_일어나지_않을경우_정상적으로_shortenUrl을_생성한다() {
